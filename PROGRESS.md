@@ -11,5 +11,7 @@
 - README (requirements, install per system including the unsigned-app warnings, commands, cooperation features, usage/permission cautions, settings table, run from source), MIT LICENSE, demo screenshots with a made-up project path.
 - Tested 2026-10-29: packaged app's screen in demo mode; real Haiku agent from the packaged app (task list, write, a guard block on a claimed file), both with Node.js and with the Electron-Node fallback; the setup-needed message when Claude Code is missing.
 
+- Released 2026-10-29 as v1.0.0 (repo still private until the user makes it public): GitHub Actions built all five installers (Windows .exe, Mac .dmg for Apple chip and Intel, Linux .AppImage and .deb) and attached them to the release.
+
 ## Not tested yet
-- Mac and Linux builds (no Mac or Linux machine here). They'll first be built when a version tag is pushed.
+- Running the Mac and Linux builds (no Mac or Linux machine here). They build successfully but nobody has opened them yet.

@@ -93,6 +93,8 @@ class Agent {
     this.busy = false;
     this.current = null;
     this.queue = [];
+    clearTimeout(this.interruptTimer);
+    this.interrupting = false;
     this.tasks = [];
     this.ctx = 0;
     this.used = 0;
@@ -140,12 +142,33 @@ class Agent {
   }
 
   // Queue a message for this agent. Resolves with its final reply for that turn.
+  // urgent (operator messages): goes to the front of the queue and interrupts the current turn.
   send(text, opts = {}) {
     return new Promise(resolve => {
-      this.queue.push({ text, chain: opts.chain || [], origin: opts.origin || null, internal: !!opts.internal, onDone: resolve });
+      const item = { text, chain: opts.chain || [], origin: opts.origin || null, internal: !!opts.internal, urgent: !!opts.urgent, onDone: resolve };
+      if (item.urgent) {
+        const at = this.queue.findIndex(q => !q.urgent);
+        this.queue.splice(at < 0 ? this.queue.length : at, 0, item);
+      } else this.queue.push(item);
       this.pump();
+      if (item.urgent && this.current !== item) this.interrupt();
       this.c.emitAgent(this);
     });
+  }
+
+  // Like Esc in Claude Code: stop the current turn but keep the session, then take the next message.
+  interrupt() {
+    if (!this.busy || !this.proc || !this.current || this.current.internal || this.interrupting) return;
+    this.interrupting = true;
+    this.current.interrupted = true;
+    this.c.feed(this.id, 'sys', '-- interrupted by operator --');
+    try {
+      this.proc.stdin.write(JSON.stringify({ type: 'control_request', request_id: crypto.randomUUID(), request: { subtype: 'interrupt' } }) + '\n');
+    } catch {}
+    // If Claude Code doesn't stop in time, restart it on the same session.
+    this.interruptTimer = setTimeout(() => {
+      if (this.interrupting && this.proc) { this.stopping = true; killTree(this.proc); }
+    }, 8000);
   }
 
   pump() {
@@ -154,6 +177,8 @@ class Agent {
     this.current = item;
     this.busy = true;
     if (item.internal) this.compacting = true;
+    else this.tasks = [];                     // each new message gets its own task list
+    this.c.emitAgent(this);
     try {
       this.ensureProc();
       this.proc.stdin.write(JSON.stringify({ type: 'user', message: { role: 'user', content: item.text } }) + '\n');
@@ -291,6 +316,9 @@ class Agent {
     const item = this.current;
     this.current = null;
     this.busy = false;
+    clearTimeout(this.interruptTimer);
+    this.interrupting = false;
+    if (item?.interrupted) text = '[interrupted by operator before finishing]' + (text ? '\n' + text : '');
     if (item?.internal) {
       this.compacting = false;
       this.compactQueued = false;
@@ -525,7 +553,7 @@ class Cluster extends EventEmitter {
       this.chat('C1', 'user', text);
       this.focusLit = true;
       this.emit('focus', { on: true });
-      lead.send(this.focusLeadPrompt(text)).then(() => {
+      lead.send(this.focusLeadPrompt(text), { urgent: true }).then(() => {
         if (!Object.values(this.agents).some(a => a.busy)) { this.focusLit = false; this.emit('focus', { on: false }); }
       });
       return;
@@ -543,7 +571,7 @@ class Cluster extends EventEmitter {
       return;
     }
     this.chat(id, 'user', text);
-    a.send(text);
+    a.send(text, { urgent: true });
   }
 
   stop(id) {
@@ -707,7 +735,7 @@ class Cluster extends EventEmitter {
   }
 
   guard(a, p) {
-    if (p.command) return this.guardShell(a, p.command);
+    if (p.command) return this.guardShell(a, p.command, p.cwd);
     if (!p.file) return { allow: true };
     const k = this.norm(p.file, p.cwd);
     const owner = this.claims.get(k);
@@ -721,19 +749,46 @@ class Cluster extends EventEmitter {
   }
 
   // Shell commands can't be checked exactly, so: refuse a command that mentions a file
-  // another agent holds AND looks like it writes, moves or deletes something.
-  guardShell(a, cmd) {
+  // another agent holds AND looks like it writes, moves or deletes something. A file name
+  // counts only if it points at the claimed file's folder (a path written before it, else
+  // the last cd, else the agent's own folder), so a same-named file elsewhere is fine.
+  guardShell(a, cmd, cwd) {
     const WRITE_RE = /(^|[^-=<2&])>{1,2}(?!&)|\b(set-content|add-content|out-file|remove-item|move-item|copy-item|rename-item|new-item|tee|truncate|rm|mv|cp|del|erase|ren|rename)\b|\bsed\s+-i|\bgit\s+(checkout|restore|reset|stash|clean|rm|mv)\b/i;
     if (!WRITE_RE.test(cmd)) return { allow: true };
-    const low = cmd.toLowerCase();
+    const low = cmd.toLowerCase().replace(/\\/g, '/').replace(/(^|[\s"'=(])\/([a-z])\//g, '$1$2:/');
     for (const [file, owner] of this.claims) {
       if (owner === a.id || (a.current?.chain || []).includes(owner)) continue;
       const base = path.basename(file);
-      if (!low.includes(base)) continue;
+      if (!this.shellMentions(low, base, cwd).includes(file)) continue;
       this.feed(a.id, 'err', `!! GUARD: shell write touching ${base} (claimed by ${owner})`);
       return { allow: false, reason: `This command looks like it changes ${base}, which ${owner} has claimed. Don't change that file. Ask ${owner} with mcp__cluster__ask_agent, wait, or do other work. (If this is a different file with the same name, use the Edit/Write tools instead.)` };
     }
     return { allow: true };
+  }
+
+  // Full paths of every place `base` appears in a (lowercased, forward-slash) command.
+  shellMentions(low, base, cwd) {
+    const cds = [];
+    const CD_RE = /(?:^|[;&|(\n])\s*(?:cd|pushd|set-location)\s+(?:\/d\s+)?(?:"([^"]*)"|'([^']*)'|([^\s;&|)]+))/g;
+    let m, dir = cwd || this.workspace;
+    while ((m = CD_RE.exec(low))) { dir = path.resolve(dir, m[1] ?? m[2] ?? m[3]); cds.push([m.index, dir]); }
+    const out = [];
+    for (let i = low.indexOf(base); i !== -1; i = low.indexOf(base, i + 1)) {
+      if (/[a-z0-9_.-]/.test(low[i + base.length] || '') || /[a-z0-9_-]/.test(low[i - 1] || '')) continue;
+      let start = i;
+      if (low[i - 1] === '/') {
+        // A drive path or a quoted path may hold spaces ("c:/my folder/x.js"); otherwise the path ends at a space.
+        const before = low.slice(Math.max(0, i - 260), i);
+        let s = before.search(/[a-z]:\/(?:(?![a-z]:\/)[^"'`;&|<>\n])*$/);
+        if (s === -1) s = before.search(/(?<=["'])[^\s"'`;&|<>()=,][^"'`;&|<>()=,\n]*$/);
+        if (s === -1) s = before.search(/[^\s"'`;&|<>()=,]*$/);
+        start = i - before.length + s;
+      }
+      let at = cwd || this.workspace;
+      for (const [pos, d] of cds) if (pos < i) at = d;
+      out.push(path.resolve(at, low.slice(start, i + base.length)).toLowerCase());
+    }
+    return out;
   }
 
   statusText() {

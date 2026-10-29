@@ -35,6 +35,7 @@ When it opens, the chat panel says either **WELCOME** (you're ready) or **SETUP 
 
 - **Pick an agent** by clicking its box, or press **Tab** / **Shift+Tab**. Type a task and press **Enter**.
 - **Choose the project folder** the agents work in by clicking the `PROJECT ▸` line at the top. All six share it. The default is `Documents/Cluster Terminal Projects`.
+- **Send a message any time.** If the agent is busy, it stops what it was doing and answers your new message right away (like pressing Esc in Claude Code).
 - **HALT** stops the selected agent. Your next message picks up where it left off.
 - Sessions, chat and task lists are saved, so they come back the next time you open the app.
 
@@ -55,7 +56,7 @@ Switching modes clears every agent's session.
 
 Each agent is a real Claude Code session with a few extra "cluster" tools:
 
-- **Task lists**: agents post their plan and tick items off. That's what the progress bars show.
+- **Task lists**: agents post their plan and tick items off. That's what the progress bars show. Each new message starts a fresh list.
 - **Asking for help**: an agent can hand part of its work to an idle agent and wait for the answer. The line between them lights up on the network map.
 - **File claims**: when an agent edits a file, it's reserved until that agent's turn ends. Other agents' edits to it are refused, so two agents can't overwrite each other.
 - **Watchdog**: when an agent's memory (context) gets full, it's compacted automatically between turns.

@@ -13,5 +13,7 @@
 
 - Released 2026-10-29 as v1.0.0 (repo still private until the user makes it public): GitHub Actions built all five installers (Windows .exe, Mac .dmg for Apple chip and Intel, Linux .AppImage and .deb) and attached them to the release.
 
+- v1.0.1 (2026-10-29), ported from the private copy (commits b9a694b, dff7870, 482c41e): operator messages interrupt the current turn; the shell guard matches a file name to its folder, so a same-named file elsewhere no longer blocks; each new message starts an empty task list. Guard tests (12) pass; task-list reset live-tested with Haiku.
+
 ## Not tested yet
 - Running the Mac and Linux builds (no Mac or Linux machine here). They build successfully but nobody has opened them yet.

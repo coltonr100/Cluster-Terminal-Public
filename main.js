@@ -12,10 +12,10 @@ const MAC = process.platform === 'darwin';
 if (!app.requestSingleInstanceLock()) app.quit();
 app.on('second-instance', () => { if (win) { if (win.isMinimized()) win.restore(); win.focus(); } });
 
-// Settings and saved sessions live in the user's app-data folder (CT_DATA overrides, for testing).
-const dataDir = process.env.CT_DATA || app.getPath('userData');
+// Settings and saved sessions live in the user's app-data folder (CT_DATA or CT_RUNTIME overrides, for testing).
+const dataDir = process.env.CT_DATA || process.env.CT_RUNTIME || app.getPath('userData');
 
-const EVENTS = ['agent', 'chat', 'feed', 'link', 'focus', 'turn', 'reset'];
+const EVENTS = ['agent', 'chat', 'feed', 'link', 'turn', 'reset'];
 const toScreen = (type, data) => { if (win && !win.isDestroyed()) win.webContents.send('ct', { type, data }); };
 
 function current() { return demoOn ? demo : cluster; }
@@ -66,7 +66,7 @@ Settings folder: ${dataDir}`);
     win.webContents.once('did-finish-load', () => {
       demoOn = true;
       demo.start();
-      if (process.env.CT_SNAP_FOCUS) demo.setMode('focus');
+      if (process.env.CT_SNAP_FOCUS || process.env.CT_SNAP_ORCH) demo.setMode('orch');
       // CT_SNAP_JS: script to run in the page before the screenshot (for testing keys and commands).
       if (process.env.CT_SNAP_JS) setTimeout(() => win.webContents.executeJavaScript(process.env.CT_SNAP_JS), 3000);
       setTimeout(async () => {
@@ -84,9 +84,14 @@ ipcMain.handle('ct:mode', (e, { mode }) => {
   if (demoOn) demo.setMode(mode); else cluster.setMode(mode);
   return { ...current().state(), demo: demoOn };
 });
+ipcMain.handle('ct:clearall', () => {
+  if (demoOn) demo.setMode(demo.mode);
+  else { cluster.clearAll(); for (const a of Object.values(cluster.agents)) cluster.sys(a.id, 'All sessions cleared. Next message starts fresh.'); }
+  return { ...current().state(), demo: demoOn };
+});
 ipcMain.handle('ct:demo', (e, { on }) => {
   demoOn = !!on;
-  if (demoOn) { demo.mode = cluster.mode; demo.start(); if (demo.mode === 'focus') demo.emit('focus', { on: true }); }
+  if (demoOn) { demo.mode = cluster.mode; demo.start(); }
   else demo.stop();
   return { ...current().state(), demo: demoOn };
 });

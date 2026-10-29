@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('ct', {
   stop: id => ipcRenderer.invoke('ct:stop', { id }),
   mode: mode => ipcRenderer.invoke('ct:mode', { mode }),
   demo: on => ipcRenderer.invoke('ct:demo', { on }),
+  clearAll: () => ipcRenderer.invoke('ct:clearall'),
   workspace: () => ipcRenderer.invoke('ct:workspace'),
   settings: () => ipcRenderer.invoke('ct:settings'),
   info: () => ipcRenderer.invoke('ct:info'),

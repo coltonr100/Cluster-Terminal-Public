@@ -15,5 +15,7 @@
 
 - v1.0.1 (2026-10-29), ported from the private copy (commits b9a694b, dff7870, 482c41e): operator messages interrupt the current turn; the shell guard matches a file name to its folder, so a same-named file elsewhere no longer blocks; each new message starts an empty task list. Guard tests (12) pass; task-list reset live-tested with Haiku. Code pushed; the `v1.0.1` tag (which builds the installers) is not made yet, so the release page still has 1.0.0.
 
+- v1.1.0 (2026-10-29), orch mode ported from the private project (without its remote control point): `/orch` (alias `/focus`) replaces focus mode; ORCH agent with assign / rule / ledger / ownership tools, fresh worker sessions per job, owned-files-only editing, worker-to-worker messages and tickets; `/clearall`; agent boxes show code. Public's own behaviour kept (messages interrupt, folder-aware shell guard, fresh task list per message; ORCH keeps its list through hub notices). New settings `orchModel`, `orchResetAtTokens`. `node test-orch.js` 14/14 pass; demo screenshots of both modes checked; README screenshot now shows orch mode. Pushed; no `v1.1.0` tag yet.
+
 ## Not tested yet
 - Running the Mac and Linux builds (no Mac or Linux machine here). They build successfully but nobody has opened them yet.

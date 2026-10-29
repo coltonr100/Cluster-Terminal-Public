@@ -7,4 +7,6 @@
 - Build the Windows installer: `npm run dist:win` → `dist/`. Mac and Linux are built by GitHub Actions (`.github/workflows/release.yml`) when a `v*` tag is pushed, and attached to a release.
 - On Windows without admin rights or Developer Mode, electron-builder's `winCodeSign` download fails to unpack (it contains Mac symlinks). Fix: extract the downloaded .7z yourself, skipping `*.dylib`, into `%LOCALAPPDATA%\electron-builder\Cache\winCodeSign\winCodeSign-2.6.0`.
 - Look and controls follow the private project's rules: `renderer/themes/cluster.css`, no glows, gradients, icons or extra font sizes, chat commands instead of buttons.
+- Orch mode (since 1.1.0): `/orch` (alias `/focus`) adds a seventh agent, ORCH, that plans, assigns jobs with file ownership, rules on tickets and keeps `<project>/.cluster/ledger.md`; workers get a fresh session per job and edit only files they own. `node test-orch.js` is its offline test (fake agents, no usage); run it after changing `orchestrator.js` or `mcp-bridge.js`. Screenshot test: `CT_DATA=<temp> CT_SNAP=<png> CT_SNAP_ORCH=1 npx electron .` (`CT_RUNTIME` works the same as `CT_DATA`).
+- The private copy's remote control point (`control.json`) is deliberately left out of the public app.
 - `dist/`, `node_modules/`, `runtime/`, `workspace/` are not uploaded.

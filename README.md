@@ -4,9 +4,9 @@ Six [Claude Code](https://claude.com/claude-code) agents, **C1–C6**, working s
 
 ![Cluster Terminal in individual mode](docs/screenshot.png)
 
-Give each agent its own job, or switch to **focus mode** and let C1 lead: it splits one big task into pieces, hands them to C2–C6 at the same time, then puts the results together. You can watch all of it live: every agent's task list and progress, the commands and code it's running, who's talking to whom, and how many tokens the cluster is using.
+Give each agent its own job, or switch to **orch mode** and let a seventh agent, the orchestrator (ORCH), run the project: it splits one big task into pieces, gives each of C1–C6 its own files to work on, settles disagreements between them, and keeps a written record of the plan. You can watch all of it live: every agent's task list and progress, the commands and code it's running, who's talking to whom, and how many tokens the cluster is using.
 
-![Focus mode: C1 leading the other five](docs/screenshot-focus.png)
+![Orch mode: the orchestrator directing C1–C6](docs/screenshot-orch.png)
 
 ## What you need
 
@@ -36,7 +36,7 @@ When it opens, the chat panel says either **WELCOME** (you're ready) or **SETUP 
 - **Pick an agent** by clicking its box, or press **Tab** / **Shift+Tab**. Type a task and press **Enter**.
 - **Choose the project folder** the agents work in by clicking the `PROJECT ▸` line at the top. All six share it. The default is `Documents/Cluster Terminal Projects`.
 - **Send a message any time.** If the agent is busy, it stops what it was doing and answers your new message right away (like pressing Esc in Claude Code).
-- **HALT** stops the selected agent. Your next message picks up where it left off.
+- **HALT** stops the selected agent (in orch mode, the whole cluster). Your next message picks up where it left off.
 - Sessions, chat and task lists are saved, so they come back the next time you open the app.
 
 ### Commands (type them in the chat box)
@@ -44,9 +44,10 @@ When it opens, the chat panel says either **WELCOME** (you're ready) or **SETUP 
 | Command | What it does |
 |---|---|
 | `/help` | Show commands and keys |
-| `/focus` | Focus mode: you talk only to C1, which splits the work across C2–C6 |
+| `/orch` | Orch mode: you talk only to the orchestrator, which plans and hands out the work (`/focus` does the same) |
 | `/individual` | Individual mode: each agent works on its own task |
-| `/clear` | Give the selected agent a fresh session |
+| `/clear` | Give the selected agent a fresh session (in orch mode: a fresh memory for the orchestrator, which reloads from its record) |
+| `/clearall` | Give every agent a fresh session, without changing mode |
 | `/demo` | Turn demo mode on/off (fake agents that use no Claude usage) |
 | `/settings` | Open the settings file |
 
@@ -60,6 +61,17 @@ Each agent is a real Claude Code session with a few extra "cluster" tools:
 - **Asking for help**: an agent can hand part of its work to an idle agent and wait for the answer. The line between them lights up on the network map.
 - **File claims**: when an agent edits a file, it's reserved until that agent's turn ends. Other agents' edits to it are refused, so two agents can't overwrite each other.
 - **Watchdog**: when an agent's memory (context) gets full, it's compacted automatically between turns.
+
+### Orch mode
+
+Type `/orch` to switch. You talk only to the orchestrator (ORCH, in the middle of the network map). It doesn't write code itself. Instead it:
+
+- **Plans and assigns.** It breaks your request into jobs and gives each worker (C1–C6) a job plus the files or folders it owns. Every job starts the worker with a fresh session and a briefing.
+- **Owns the file map.** A worker may only edit files it owns. Edits to another worker's files are refused; a file nobody owns becomes the editor's.
+- **Settles disputes.** Workers message each other directly. When they disagree, or need to change a shared interface or someone else's file, they raise a ticket and wait for the orchestrator's ruling.
+- **Keeps a ledger.** The goal, decisions, contracts and rulings are written to `.cluster/ledger.md` in the project folder. When the orchestrator's memory gets full, it starts fresh and reloads from the ledger.
+
+When a worker finishes, its report goes to the orchestrator, which assigns the next step or tells you the job is done.
 
 ## Things to know before you use it
 
@@ -82,6 +94,8 @@ Each agent is a real Claude Code session with a few extra "cluster" tools:
 | `maxHelpersWhenInstructed` | `3` | Same, when you've explicitly told it to use more. |
 | `maxChainDepth` | `3` | How long a chain of "A asks B asks C…" may get. |
 | `helpTimeoutMinutes` | `60` | How long an agent waits for a helper's answer. |
+| `orchModel` | `""` | Claude model for the orchestrator in orch mode. Empty uses `model`. |
+| `orchResetAtTokens` | `60000` | Context size at which the orchestrator gets a fresh memory (reloading from the ledger). |
 | `theme` | `"cluster"` | Screen theme. Others are in `renderer/themes/` (`amber`, `green`, `severance`…). |
 
 The settings file and saved sessions are kept in:
@@ -102,18 +116,19 @@ npm start
 
 Build an installer for your own computer with `npm run dist`. It goes into `dist/`. Pushing a tag such as `v1.0.1` makes GitHub Actions build all three platforms and attach them to a release.
 
-For testing the screen without any usage: `CT_SNAP=shot.png npx electron .` starts demo mode, saves a screenshot and quits (add `CT_SNAP_FOCUS=1` for focus mode).
+For testing the screen without any usage: `CT_SNAP=shot.png npx electron .` starts demo mode, saves a screenshot and quits (add `CT_SNAP_ORCH=1` for orch mode). `node test-orch.js` runs an offline test of orch mode (no window, no usage).
 
 ### Files
 
 | File | What it is |
 |---|---|
 | `main.js` | The window |
-| `orchestrator.js` | Runs the six Claude Code processes, the hub their tools talk to, file claims, the watchdog and the modes |
+| `orchestrator.js` | Runs the Claude Code processes (C1–C6 and the orchestrator), the hub their tools talk to, file claims and ownership, the watchdog and the modes |
 | `mcp-bridge.js` | The agents' cluster tools (a small MCP server) |
 | `hook-guard.js` | The hook that refuses edits to files another agent has claimed |
 | `demo.js` | Demo mode's fake agents |
 | `renderer/` | The screen |
+| `test-orch.js` | Offline test of orch mode |
 
 ## License
 

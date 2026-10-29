@@ -1,0 +1,31 @@
+/* B: Amber monochrome terminal. VT323, double-line boxes with titles cut into the border. */
+:root {
+  --bg: #0c0600; --panel: #0c0600; --border: #b37400; --border-w: 3px;
+  --text: #ffae1a; --bright: #ffd27a; --dim: #b37400; --faint: #6b4500;
+  --hi: #ffae1a; --hi-text: #0c0600;
+  --warn: #ffd27a; --err: #ff7a3a; --sql: #ffd27a;
+  --font: "VT323", monospace; --fs: 20px; --label-fs: 18px;
+  --bloom: 0 0 4px rgba(255, 174, 26, 0.55), 0 0 1px rgba(255, 210, 122, 0.8);
+  --gap: 16px;
+}
+.box { border-style: double; padding-top: 14px; overflow: visible; }
+.box > .label:first-child { position: absolute; top: -0.65em; left: 12px; background: var(--bg); padding: 0 6px; margin: 0; color: var(--text); }
+.box > .label:first-child .sub { color: var(--dim); }
+#feed, #chat, .agent .list { overflow: hidden; }
+#chat { overflow-y: auto; }
+#titleBox h1 { font-size: 46px; font-weight: 400; line-height: 1; }
+#titleBox .time { font-size: 32px; }
+#usageBox .total { font-size: 46px; }
+.agent .aid { font-size: 34px; font-weight: 400; }
+.agent .pct { font-size: 26px; }
+.agent .bar { height: 16px; border-width: 1px; }
+.agent .bar .fill { background: repeating-linear-gradient(90deg, var(--text) 0 10px, transparent 10px 13px); }
+#hex .node text { font-size: 15px; }
+#feed { line-height: 1.05; }
+#crt {
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 2px, rgba(0, 0, 0, 0.32) 2px 4px),
+    radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.75) 100%);
+  animation: flicker 5s infinite steps(1);
+}
+@keyframes flicker { 0%, 100% { opacity: 1; } 31% { opacity: 0.9; } 32% { opacity: 1; } 77% { opacity: 0.94; } 78% { opacity: 1; } }

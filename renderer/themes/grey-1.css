@@ -1,0 +1,25 @@
+/* G: Grey-green, boxed. One text size everywhere; title block left-aligned; right column wider. */
+:root {
+  --bg: #0a0c0b; --panel: #0a0c0b; --border: #47534b; --border-w: 1px;
+  --text: #b8c6bc; --bright: #e0e7e1; --dim: #7b8980; --faint: #3a443e;
+  --hi: #b8c6bc; --hi-text: #0a0c0b;
+  --ok: #8fc49d; --alert: #cf625b;
+  --warn: #d6d9bd; --err: #cf8f84; --sql: #e0e7e1;
+  --font: "Plex Mono", monospace; --fs: 14px; --label-fs: 14px;
+  --bloom: none;
+  --gap: 12px;
+}
+body *, button, textarea { font-size: var(--fs) !important; font-weight: 400 !important; }
+#app { padding: 18px 22px 16px 18px; }
+#top, #body { grid-template-columns: 26% 1fr 29%; }
+.label { text-transform: uppercase; border-bottom: 1px solid var(--faint); padding-bottom: 3px; margin-bottom: 7px; }
+#titleBox { align-items: flex-start; text-align: left; justify-content: flex-start; padding-top: 8px; gap: 2px; }
+#titleBox h1 { order: -1; color: var(--bright); letter-spacing: 0.2em; padding-left: 0; border-bottom: 1px solid var(--faint); align-self: stretch; padding-bottom: 3px; margin-bottom: 6px; }
+#titleBox .clocks { gap: 28px; }
+#titleBox .controls { margin-top: 8px; }
+.agent .aid { color: var(--bright); }
+.agent .bar { height: 8px; }
+.agent .bar .blocks span { width: 3px; }
+#usageBox .total { color: var(--bright); }
+#hex .edge.active.pulse { animation: none; }
+#crt { background: repeating-linear-gradient(to bottom, transparent 0 2px, rgba(0, 0, 0, 0.1) 2px 3px); }

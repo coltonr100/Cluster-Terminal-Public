@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'">
+  <title>Cluster Terminal</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" id="theme" href="themes/cluster.css">
+</head>
+<body>
+  <div id="titlebar"></div>
+  <div id="app">
+    <header id="top">
+      <section class="box" id="netBox">
+        <div class="label">NETWORK <span class="sub" id="netSub">0 / 15 LINKS</span></div>
+        <svg id="hex" viewBox="28 6 184 188" preserveAspectRatio="xMidYMid meet"></svg>
+      </section>
+
+      <section class="box" id="titleBox">
+        <div class="date" id="date">—</div>
+        <div class="clocks">
+          <div><span class="tz">UTC</span><span class="time" id="utc">--:--:--</span></div>
+          <div><span class="tz" id="ctLabel">CST</span><span class="time" id="cst">--:--:--</span></div>
+        </div>
+        <h1>CLUSTER TERMINAL</h1>
+        <div class="mode" id="modeText">RUNNING: <span class="word">INDIVIDUAL</span></div>
+        <div class="workspace" id="workspace" title="Click to choose the project folder">—</div>
+      </section>
+
+      <section class="box" id="usageBox">
+        <div class="label">USAGE <span class="sub">CLUSTER TOTAL · TOKENS</span></div>
+        <div class="total" id="total">0</div>
+        <svg id="spark" viewBox="0 0 300 60" preserveAspectRatio="none"></svg>
+        <div class="axis"><span>-3H</span><span>NOW</span></div>
+        <div class="label small">CONSUMERS</div>
+        <div id="top3"></div>
+      </section>
+    </header>
+
+    <main id="body">
+      <div class="side" id="left"></div>
+
+      <div id="center">
+        <section class="box" id="feedBox">
+          <div class="label">EXECUTION <span class="sub" id="feedSub">// C1</span></div>
+          <div id="feed"></div>
+        </section>
+        <section class="box" id="chatBox">
+          <div class="label">CHANNEL <span class="sub" id="chatSub">// OPERATOR / C1</span></div>
+          <div id="chat"></div>
+          <div id="inputRow">
+            <textarea id="input" rows="2" placeholder="Instruct C1…   (ENTER SENDS / SHIFT+ENTER NEW LINE)"></textarea>
+            <div class="btns">
+              <button id="sendBtn">TRANSMIT</button>
+              <button id="stopBtn" class="warn">HALT</button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="side" id="right"></div>
+    </main>
+  </div>
+  <div id="crt"></div>
+  <script src="app.js"></script>
+</body>
+</html>

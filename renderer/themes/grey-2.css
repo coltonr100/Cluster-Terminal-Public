@@ -1,0 +1,26 @@
+/* H: Grey-green, boxed. Two text sizes only (body and a larger one for IDs and totals);
+   top row columns don't line up with the body columns; buttons sit in a row. */
+:root {
+  --bg: #0b0d0c; --panel: #0b0d0c; --border: #4c5750; --border-w: 1px;
+  --text: #bdc7bf; --bright: #e3e8e3; --dim: #808b83; --faint: #3c4540;
+  --hi: #bdc7bf; --hi-text: #0b0d0c;
+  --ok: #93c6a0; --alert: #cc5f58;
+  --warn: #d8dabf; --err: #cc8e83; --sql: #e3e8e3;
+  --font: "Plex Mono", monospace; --fs: 14px; --label-fs: 14px; --big: 21px;
+  --bloom: none;
+  --gap: 12px;
+}
+body *, button, textarea { font-size: var(--fs) !important; font-weight: 400 !important; }
+.agent .aid, .agent .pct, #usageBox .total, #titleBox .time { font-size: var(--big) !important; }
+#app { padding: 16px 18px; }
+#top { grid-template-columns: 31% 1fr 25%; }
+#body { grid-template-columns: 27% 1fr 27%; }
+#center { grid-template-rows: 28% 1fr; }
+.label { text-transform: uppercase; margin-bottom: 8px; }
+.label::after { content: ""; display: block; border-bottom: 1px solid var(--faint); margin-top: 3px; width: 60%; }
+#titleBox h1 { letter-spacing: 0.25em; color: var(--bright); margin: 6px 0; }
+#inputRow .btns { flex-direction: row; align-items: flex-end; }
+.agent .bar { height: 7px; }
+.agent .bar .blocks span { width: 3px; }
+#hex .edge.active.pulse { animation: none; }
+#crt { background: repeating-linear-gradient(to bottom, transparent 0 2px, rgba(0, 0, 0, 0.1) 2px 3px); }

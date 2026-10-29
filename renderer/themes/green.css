@@ -1,0 +1,30 @@
+/* C: Green-phosphor mainframe (3270 style). No boxes, inverse-video section bars, white for emphasis. */
+:root {
+  --bg: #010a03; --panel: #010a03; --border: #135c26; --border-w: 1px;
+  --text: #3cf06a; --bright: #e8ffe8; --dim: #24a046; --faint: #135c26;
+  --hi: #3cf06a; --hi-text: #010a03;
+  --warn: #f5f56a; --err: #ff5a5a; --sql: #6ae8f5;
+  --font: "VT323", monospace; --fs: 21px; --label-fs: 19px;
+  --bloom: 0 0 3px rgba(60, 240, 106, 0.6);
+  --gap: 12px;
+}
+.box { border: none; border-top: 1px dashed var(--faint); padding: 0 4px; }
+.box > .label { background: var(--hi); color: var(--hi-text); padding: 0 8px; margin: 0 -4px 6px; text-shadow: none; }
+.box > .label .sub { color: var(--hi-text); opacity: 0.7; }
+#titleBox { border: 1px solid var(--dim); }
+#titleBox h1 { font-size: 48px; font-weight: 400; line-height: 1; color: var(--bright); }
+#titleBox .time { font-size: 32px; }
+#usageBox .total { font-size: 46px; }
+.agent .aid { font-size: 34px; font-weight: 400; }
+.agent .pct { font-size: 26px; }
+.agent .bar { border: none; height: auto; overflow: visible; }
+.agent .bar .fill { display: none; }
+.agent .bar .blocks { display: none; }
+.agent .bar::after { content: attr(data-text); white-space: pre; color: var(--text); }
+#hex .node text { font-size: 15px; }
+#feed { line-height: 1.05; }
+#crt {
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 1px, rgba(0, 0, 0, 0.35) 1px 3px),
+    radial-gradient(ellipse at center, transparent 58%, rgba(0, 0, 0, 0.7) 100%);
+}

@@ -1,0 +1,23 @@
+/* E: Pale green on dark slate, like a Lumon desk monitor. No borders on the agent panels,
+   just rules; wide margins; no screen effects at all. */
+:root {
+  --bg: #0b100f; --panel: #0b100f; --border: #3a4f47; --border-w: 1px;
+  --text: #a9cdb6; --bright: #d6ebdd; --dim: #6a8a78; --faint: #33473d;
+  --hi: #a9cdb6; --hi-text: #0b100f;
+  --ok: #86cf9c; --alert: #d4574f;
+  --warn: #cfdcae; --err: #d08a7e; --sql: #d6ebdd;
+  --font: "Plex Mono", monospace; --fs: 14px; --label-fs: 12px;
+  --gap: 18px;
+}
+#app { padding: 26px 32px; }
+.box { border: none; border-top: 1px solid var(--border); padding: 8px 2px; }
+.box > .label:first-child { text-transform: uppercase; }
+#titleBox { border: 1px solid var(--border); padding: 8px 12px; }
+#titleBox, #titleBox * { font-size: var(--fs) !important; font-weight: 400; }
+#titleBox h1 { letter-spacing: 0.3em; color: var(--bright); }
+#titleBox .clocks { gap: 32px; }
+.agent.sel { border-top: 2px solid var(--bright); }
+.agent.sel .aid { background: none; color: var(--bright); padding: 0; text-decoration: underline; text-underline-offset: 5px; }
+.agent .bar { height: 6px; border-color: var(--faint); }
+.agent .bar .blocks span { width: 3px; }
+#hex .edge.active.pulse { animation: none; }

@@ -1,0 +1,20 @@
+/* D: Pale green on near-black. Plain boxes, faint scanlines, nothing else. */
+:root {
+  --bg: #070b09; --panel: #070b09; --border: #2f4a3c; --border-w: 1px;
+  --text: #b4d6c0; --bright: #dcefe2; --dim: #6f9580; --faint: #34503f;
+  --hi: #b4d6c0; --hi-text: #070b09;
+  --ok: #7fd49a; --alert: #e0625a;
+  --warn: #d9e3b0; --err: #d98c80; --sql: #dcefe2;
+  --font: "Plex Mono", monospace; --fs: 14px; --label-fs: 12px;
+  --bloom: 0 0 1px rgba(180, 214, 192, 0.35);
+  --gap: 14px;
+}
+#app { padding: 20px 24px; }
+.label { text-transform: uppercase; border-bottom: 1px solid var(--faint); padding-bottom: 4px; }
+#titleBox, #titleBox * { font-size: var(--fs) !important; font-weight: 400; }
+#titleBox h1 { letter-spacing: 0.3em; color: var(--bright); }
+#titleBox .clocks { gap: 32px; }
+.agent .bar { height: 8px; }
+.agent .bar .blocks span { width: 3px; }
+#hex .edge.active.pulse { animation: none; }
+#crt { background: repeating-linear-gradient(to bottom, transparent 0 2px, rgba(0, 0, 0, 0.12) 2px 3px); }

@@ -1,0 +1,26 @@
+/* I: Grey-green, boxed panels with a heavier left edge. One text size; labels inverted
+   in small tabs; tighter horizontal than vertical spacing; title block right-aligned. */
+:root {
+  --bg: #0a0b0b; --panel: #0a0b0b; --border: #46524c; --border-w: 1px;
+  --text: #b3c1ba; --bright: #dde5e0; --dim: #77857e; --faint: #38423d;
+  --hi: #9eada5; --hi-text: #0a0b0b;
+  --ok: #8cc29b; --alert: #cd5f58;
+  --warn: #d4d8bc; --err: #cc8c82; --sql: #dde5e0;
+  --font: "Plex Mono", monospace; --fs: 14px; --label-fs: 14px;
+  --bloom: none;
+  --gap: 9px;
+}
+body *, button, textarea { font-size: var(--fs) !important; font-weight: 400 !important; }
+#app { padding: 18px 20px; row-gap: 14px; }
+#body .side { row-gap: 14px; }
+#center { row-gap: 14px; }
+.box { border-left-width: 3px; padding-left: 11px; }
+.box > .label:first-child { display: inline-block; background: var(--hi); color: var(--hi-text); padding: 0 6px; margin: 0 0 8px -11px; text-transform: uppercase; }
+.box > .label:first-child .sub { color: var(--hi-text); }
+#titleBox { align-items: flex-end; text-align: right; padding-right: 16px; }
+#titleBox h1 { letter-spacing: 0.2em; color: var(--bright); padding-left: 0; }
+.agent .aid { color: var(--bright); }
+.agent .bar { height: 9px; }
+.agent .bar .fill { background: repeating-linear-gradient(90deg, var(--text) 0 3px, transparent 3px 5px); }
+#usageBox .total { color: var(--bright); }
+#hex .edge.active.pulse { animation: none; }

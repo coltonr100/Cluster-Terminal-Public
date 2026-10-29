@@ -1,0 +1,24 @@
+/* F: Pale green on a dim grey-green, an unlit-tube look. Heavier text, double rule
+   under the title, very slight phosphor softness, no animation. */
+:root {
+  --bg: #0d1310; --panel: #0f1612; --border: #3e5848; --border-w: 1px;
+  --text: #bcdcc6; --bright: #e2f2e6; --dim: #7a9c87; --faint: #3c5446;
+  --hi: #bcdcc6; --hi-text: #0d1310;
+  --ok: #8edba6; --alert: #e46a5f;
+  --warn: #dfe7b8; --err: #dc9385; --sql: #e2f2e6;
+  --font: "Plex Mono", monospace; --fs: 14px; --label-fs: 12px;
+  --bloom: 0 0 2px rgba(188, 220, 198, 0.3);
+  --gap: 12px;
+}
+body { font-weight: 500; }
+#app { padding: 18px 22px; }
+.label { text-transform: uppercase; color: var(--text); }
+.label .sub { color: var(--dim); }
+#titleBox { border: 3px double var(--border); }
+#titleBox, #titleBox * { font-size: var(--fs) !important; font-weight: 500; }
+#titleBox h1 { letter-spacing: 0.25em; color: var(--bright); border-bottom: 1px solid var(--faint); padding-bottom: 2px; }
+#titleBox .clocks { gap: 32px; }
+.agent .bar { height: 12px; }
+.agent .bar .fill { background: repeating-linear-gradient(90deg, var(--text) 0 4px, transparent 4px 6px); }
+#hex .edge.active.pulse { animation: none; }
+#crt { box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.45); }

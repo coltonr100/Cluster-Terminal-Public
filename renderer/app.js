@@ -469,6 +469,7 @@ const HELP = `COMMANDS
               (switching modes clears every session)
 /clear        fresh session for the selected agent (ORCH in orch mode)
 /clearall     fresh session for every agent, mode unchanged
+/stats        where each agent's time went this run (/stats reset)
 /demo         demo mode on/off (fake agents, uses no Claude usage)
 /settings     open the settings file (model, permission mode, limits)
 

@@ -48,10 +48,11 @@ When it opens, the chat panel says either **WELCOME** (you're ready) or **SETUP 
 | `/individual` | Individual mode: each agent works on its own task |
 | `/clear` | Give the selected agent a fresh session (in orch mode: a fresh memory for the orchestrator, which reloads from its record) |
 | `/clearall` | Give every agent a fresh session, without changing mode |
+| `/stats` | Where each agent's time went this run (`/stats reset` starts over) |
 | `/demo` | Turn demo mode on/off (fake agents that use no Claude usage) |
 | `/settings` | Open the settings file |
 
-Switching modes clears every agent's session.
+Switching modes clears every agent's session. Tab / Shift+Tab pick the next agent. F11 switches between full screen and a normal window.
 
 ### How the agents cooperate
 
@@ -71,7 +72,14 @@ Type `/orch` to switch. You talk only to the orchestrator (ORCH, in the middle o
 - **Settles disputes.** Workers message each other directly. When they disagree, or need to change a shared interface or someone else's file, they raise a ticket and wait for the orchestrator's ruling.
 - **Keeps a ledger.** The goal, decisions, contracts and rulings are written to `.cluster/ledger.md` in the project folder. When the orchestrator's memory gets full, it starts fresh and reloads from the ledger.
 
-When a worker finishes, its report goes to the orchestrator, which assigns the next step or tells you the job is done.
+- **Queues work.** Jobs go on a shared list as short cards (what to build, which files, when it's done, how many minutes it should take). Free workers pick up the next job on their own, longest chain of waiting work first.
+- **Keeps everyone busy.** Workers can add work they discover, start early when a piece they need announces its interface is ready, and the hub asks a busy worker to split off part of a big job when someone is free.
+- **Shares one checker.** Builds and tests run through a shared queue, so six agents don't compile at once.
+- **Stops on request.** Tell it to stop and it halts every worker immediately.
+
+When a worker finishes, its report goes to the orchestrator, which assigns the next step or tells you the job is done. At the end the hub runs one final build/test check, and each run's timings are saved to `.cluster/metrics.json`. Spec PDFs in your message are turned into text first (this uses `pdftotext`, which comes with Git for Windows; on Mac/Linux install poppler).
+
+To keep costs down, workers on non-critical jobs use `workerModel` (Sonnet by default), and orch-mode agents start without extra CLAUDE.md files or MCP servers.
 
 ## Things to know before you use it
 
@@ -95,7 +103,14 @@ When a worker finishes, its report goes to the orchestrator, which assigns the n
 | `maxChainDepth` | `3` | How long a chain of "A asks B asks C…" may get. |
 | `helpTimeoutMinutes` | `60` | How long an agent waits for a helper's answer. |
 | `orchModel` | `""` | Claude model for the orchestrator in orch mode. Empty uses `model`. |
-| `orchResetAtTokens` | `60000` | Context size at which the orchestrator gets a fresh memory (reloading from the ledger). |
+| `orchResetAtTokens` | `150000` | Context size at which the orchestrator gets a fresh memory (reloading from the ledger). |
+| `workerModel` | `"sonnet"` | Model for workers on non-critical jobs in orch mode. Empty uses `model`. |
+| `criticalModel` | `""` | Model for jobs on the critical path (the longest chain). Empty uses `model`. |
+| `workerPortBase` | `4100` | First port for workers' test servers; each worker gets its own block. |
+| `checkSlots` | `2` | How many builds/tests the shared checker runs at once. |
+| `leanAgents` | `true` | Orch-mode agents start without CLAUDE.md files or extra MCP servers (faster, cheaper). |
+
+More orch-mode settings (timeouts and limits) are listed at the top of `orchestrator.js`.
 | `theme` | `"cluster"` | Screen theme. Others are in `renderer/themes/` (`amber`, `green`, `severance`…). |
 
 The settings file and saved sessions are kept in:
@@ -124,6 +139,7 @@ For testing the screen without any usage: `CT_SNAP=shot.png npx electron .` star
 |---|---|
 | `main.js` | The window |
 | `orchestrator.js` | Runs the Claude Code processes (C1–C6 and the orchestrator), the hub their tools talk to, file claims and ownership, the watchdog and the modes |
+| `checks.js` | The shared type checker and build/test queue |
 | `mcp-bridge.js` | The agents' cluster tools (a small MCP server) |
 | `hook-guard.js` | The hook that refuses edits to files another agent has claimed |
 | `demo.js` | Demo mode's fake agents |

@@ -21,6 +21,8 @@ button, textarea { font-family: inherit; font-size: inherit; }
 /* Drag strip standing in for the Windows title bar (window buttons sit over its right end). */
 #titlebar { height: 30px; -webkit-app-region: drag; background: var(--bg); }
 #app { height: calc(100vh - 30px); display: grid; grid-template-rows: 23vh 1fr; gap: var(--gap); padding: var(--gap); }
+body.full #titlebar { display: none; }
+body.full #app { height: 100vh; }
 #crt { pointer-events: none; position: fixed; inset: 0; }
 
 .box { position: relative; background: var(--panel); border: var(--border-w) solid var(--border); padding: 8px 12px; min-height: 0; overflow: hidden; }

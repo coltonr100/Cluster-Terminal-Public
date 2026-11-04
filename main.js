@@ -1,5 +1,5 @@
 'use strict';
-const { app, BrowserWindow, ipcMain, dialog, nativeTheme, Menu, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, nativeTheme, Menu, shell, screen } = require('electron');
 const path = require('path');
 const { Cluster } = require('./orchestrator');
 const { Demo } = require('./demo');
@@ -39,8 +39,16 @@ Settings folder: ${dataDir}`);
     demo.on(ev, d => { if (demoOn) toScreen(ev, d); });
   }
 
+  // Windowed size fits the screen it opens on (centered), and the minimum is small enough
+  // that Windows snapping (Win+Arrow, drag to an edge, Snap Layouts) can give it half or a quarter of the screen.
+  const work = screen.getPrimaryDisplay().workArea;
+  let w = Math.min(1680, Math.round(work.width * 0.9)), h = Math.min(980, Math.round(work.height * 0.9));
+  // CT_SNAP_SIZE=WxH: test the layout at a given window size (e.g. 768x900 for half a screen).
+  const size = (process.env.CT_SNAP_SIZE || '').match(/^(\d+)x(\d+)$/);
+  if (size) [w, h] = [+size[1], +size[2]];
   win = new BrowserWindow({
-    width: 1680, height: 980, minWidth: 1200, minHeight: 760,
+    width: w, height: h, x: work.x + Math.round((work.width - w) / 2), y: work.y + Math.round((work.height - h) / 2),
+    minWidth: 480, minHeight: 360, resizable: true, movable: true, maximizable: true,
     backgroundColor: '#0a0c0b', title: 'Cluster Terminal', autoHideMenuBar: true,
     // Replace the system title bar with a black strip; keep the window buttons.
     titleBarStyle: 'hidden',
@@ -54,6 +62,11 @@ Settings folder: ${dataDir}`);
   // Links in the chat open in the normal browser, not inside the app.
   win.webContents.setWindowOpenHandler(({ url }) => { if (/^https?:/.test(url)) shell.openExternal(url); return { action: 'deny' }; });
   win.webContents.on('will-navigate', (e, url) => { if (!url.startsWith('file:')) { e.preventDefault(); if (/^https?:/.test(url)) shell.openExternal(url); } });
+  // Full screen has no title bar, so the screen drops its drag strip.
+  const markFull = () => win.webContents.executeJavaScript(`document.body.classList.toggle('full', ${win.isFullScreen()})`).catch(() => {});
+  win.on('enter-full-screen', markFull);
+  win.on('leave-full-screen', markFull);
+  win.webContents.on('did-finish-load', markFull);
   win.webContents.on('before-input-event', (e, input) => {
     if (input.type !== 'keyDown') return;
     if (input.key === 'F11') { win.setFullScreen(!win.isFullScreen()); e.preventDefault(); }
